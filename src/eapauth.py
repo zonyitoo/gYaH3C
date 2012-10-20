@@ -5,6 +5,8 @@ and parses received EAP packet
 
 """
 
+# -*- coding:utf-8 -*-
+
 __all__ = ["EAPAuth"]
 
 import socket
