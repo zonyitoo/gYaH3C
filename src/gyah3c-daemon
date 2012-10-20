@@ -1,0 +1,23 @@
+#!/bin/sh
+
+case "$1" in
+    start)
+        if ! [ -f /tmp/gyah3c-daemon-pid ]; then
+            /usr/share/gYaH3C/daemon.py &
+            echo $! > /tmp/gyah3c-daemon-pid
+            echo "New daemon is running, pid $!"
+        else
+            echo 'A daemon is running'
+        fi
+        ;;
+    stop)
+        kill `cat /tmp/gyah3c-daemon-pid`
+        rm -f /tmp/gyah3c-daemon-pid
+        ;;
+    restart|reload)
+        $0 stop
+        $1 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|reload}"
+esac
