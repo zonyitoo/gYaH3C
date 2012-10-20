@@ -1,16 +1,13 @@
 """ EAP authentication handler
 
 This module sents EAPOL begin/logoff packet
-and parses received EAP packet 
+and parses received EAP packet
 
 """
-
-# -*- coding:utf-8 -*-
 
 __all__ = ["EAPAuth"]
 
 import socket
-import os, sys, pwd
 
 # init() # required in Windows
 from eappacket import *
@@ -24,7 +21,7 @@ def display_packet(packet):
 
 class EAPAuth:
     def __init__(self, login_info):
-         # bind the h3c client to the EAP protocal 
+         # bind the h3c client to the EAP protocal
         self.client = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETHERTYPE_PAE))
         self.client.bind((login_info['ethernet_interface'], ETHERTYPE_PAE))
         # get local ethernet card address
@@ -32,7 +29,7 @@ class EAPAuth:
         self.ethernet_header = get_ethernet_header(self.mac_addr, PAE_GROUP_ADDR, ETHERTYPE_PAE)
         self.has_sent_logoff = False
         self.login_info = login_info
-        self.version_info = '\x06\x07bjQ7SE8BZ3MqHhs3clMregcDY3Y=\x20\x20'
+        self.version_info = b'\x06\x07bjQ7SE8BZ3MqHhs3clMregcDY3Y=\x20\x20'
 
     def send_start(self):
         # sent eapol start packet
@@ -44,9 +41,9 @@ class EAPAuth:
         eap_logoff_packet = self.ethernet_header + get_EAPOL(EAPOL_LOGOFF)
         self.client.send(eap_logoff_packet)
         self.has_sent_logoff = True
-        
-    def send_response_id(self, packet_id):
-        self.client.send(self.ethernet_header + 
+
+    def send_response_id(self, packet_id):      
+        self.client.send(self.ethernet_header +
                 get_EAPOL(EAPOL_EAPPACKET,
                     get_EAP(EAP_RESPONSE,
                         packet_id,

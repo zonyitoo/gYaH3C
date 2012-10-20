@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
 
 import dbus, dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
@@ -31,10 +30,11 @@ class EAPDaemon(dbus.service.Object):
     @dbus.service.method('com.yah3c.EAPDaemon', in_signature='s')
     def Login(self, login_info):
         print 'Do Authorize ', login_info
+        login_info = str(login_info)
         self.yah3c = eapauth.EAPAuth(self.um.get_user_info(login_info))
-        #self.thread = threading.Thread(target=self.serve_forever, args=(self.yah3c, ))
-        #self.thread.start()
-        self.serve_forever(self.yah3c)
+        self.thread = threading.Thread(target=self.serve_forever, args=(self.yah3c, ))
+        self.thread.start()
+        #self.serve_forever(self.yah3c)
 
     @dbus.service.method('com.yah3c.EAPDaemon')
     def Logoff(self):
@@ -95,6 +95,8 @@ class EAPDaemon(dbus.service.Object):
         except UnicodeDecodeError:
             #print msg
             self.Message(msg)
+        except TypeError:
+            pass
         
         
     def EAP_handler(self, eap_packet, yah3c):

@@ -46,11 +46,11 @@ class MainWindow(GObject.Object):
         
         # Init the Notify
         Notify.init('gYaH3C')
-        self.loginSuccedNotify = Notify.Notification.new('gYaH3C', "登录成功", "/usr/share/qYaH3C/image/icon.png")
-        self.eapfailureNotify = Notify.Notification.new('gYaH3C', "连接失败", "/usr/share/qYaH3C/image/icon.png")
+        self.loginSuccedNotify = Notify.Notification.new('gYaH3C', "登录成功", "/usr/share/gYaH3C/icon/icon.png")
+        self.eapfailureNotify = Notify.Notification.new('gYaH3C', "连接失败", "/usr/share/gYaH3C/icon/icon.png")
         
         builder = Gtk.Builder()
-        builder.add_from_file('mainwindow.glade')
+        builder.add_from_file('/usr/share/gYaH3C/mainwindow.glade')
         builder.connect_signals(self)
         
         # Init the Window
@@ -61,6 +61,9 @@ class MainWindow(GObject.Object):
         #self.connect('login-succeed', self.on_loginSucceed)
         #self.connect('logoff-succeed', self.on_logoffSucceed)
         #self.connect('eapfailure', self.on_EAPFailure)
+        
+        # label
+        self.label = builder.get_object('label')
         
         # The Button
         self.logButton = builder.get_object('logButton')
@@ -80,7 +83,7 @@ class MainWindow(GObject.Object):
         #init the Indicator
         self.indicator = AppIndicator.Indicator.new(
                 "indicator-yah3c", 
-                "/usr/share/qYaH3C/image/systray.png",
+                "/usr/share/gYaH3C/icon/systray.png",
                 AppIndicator.IndicatorCategory.COMMUNICATIONS)
         # Show the indicator
         self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
@@ -108,9 +111,9 @@ class MainWindow(GObject.Object):
 
     def dbus_message_handler(self, message):
         print message
+        self.label.set_text(message)
         
     def dbus_status_handler(self, status_code):
-        print "statuscode=", status_code
         if status_code == status.LOGIN_SUCCEED:
             self.on_loginSucceed()
         elif status_code == status.LOGOFF_SUCCEED:
@@ -123,9 +126,7 @@ class MainWindow(GObject.Object):
         if self.hasLogin:
             self.logButton.set_label('正在下线')
             hasLogin = False
-            self.yah3c.send_logoff()
-            if self.thread and not self.thread.isAlive():
-                self.on_EAPFailure()
+            self.eapDaemon.Logoff()
         else:
             self.logButton.set_label('正在登录')
             self.userListComboBox.set_sensitive(False)

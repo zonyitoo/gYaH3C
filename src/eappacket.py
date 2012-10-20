@@ -41,6 +41,7 @@ def get_EAP(code, id, type=0, data=""):
     if code in [EAP_SUCCESS, EAP_FAILURE]:
         return pack("!BBH", code, id, 4)
     else:
+        #return pack("!BBHBp", code, id, 5+len(data), type, data.encode('gbk'))
         return pack("!BBHB", code, id, 5+len(data), type)+data
 
 def get_ethernet_header(src, dst, type):

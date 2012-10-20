@@ -3,7 +3,7 @@
   <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkWindow" id="mainWindow">
     <property name="can_focus">False</property>
-    <property name="margin_bottom">10</property>
+    <property name="margin_bottom">5</property>
     <property name="default_width">250</property>
     <property name="destroy_with_parent">True</property>
     <signal name="delete-event" handler="on_mainWindow_delete_event" swapped="no"/>
@@ -19,7 +19,7 @@
           <object class="GtkImage" id="image1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="pixbuf">../icon/icon.png</property>
+            <property name="pixbuf">/usr/share/gYaH3C/icon/icon.png</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -59,6 +59,21 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="ellipsize">start</property>
+                <attributes>
+                  <attribute name="font-desc" value="&lt;輸入數值&gt; 8"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>

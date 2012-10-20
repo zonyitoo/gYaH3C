@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=0.1
+Encoding=UTF-8
+Name=gYaH3C
+GenericName=H3C Auth Client
+Comment=A GUI Version of YaH3C base on GTK+3.0
+Exec=gyah3c
+Icon=/usr/share/pixmaps/gYaH3C.png
+Terminal=false
+Categories=GNOME;Appliation;Network

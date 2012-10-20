@@ -1,0 +1,7 @@
+#!/bin/sh
+
+BIN_PATH='/usr/bin'
+SRC_PATH='/usr/share/gYaH3C'
+
+ln -s $SRC_PATH/main.py $BIN_PATH/gyah3c
+chmod +x $SRC_PATH/main.py $SRC_PATH/daemon.py
