@@ -23,8 +23,8 @@ class MainWindow(GObject.Object):
         GObject.Object.__init__(self)
         self.hasLogin = False
         self.thread = None    
-        self.yah3c = None
         self.mainloop = mainloop
+        self.retryNum = 0
         
         dbusname = 'com.yah3c.EAPDaemon'
         dbuspath = '/' + dbusname.replace('.', '/')
@@ -48,6 +48,7 @@ class MainWindow(GObject.Object):
         Notify.init('gYaH3C')
         self.loginSuccedNotify = Notify.Notification.new('gYaH3C', "登录成功", "/usr/share/gYaH3C/icon/icon.png")
         self.eapfailureNotify = Notify.Notification.new('gYaH3C', "已下线", "/usr/share/gYaH3C/icon/icon.png")
+        self.runningFaultNotify = Notify.Notification.new('gYaH3C', "已有一个进程在运行，请尝试重启", "/usr/share/gYaH3C/icon/icon.png")
         
         builder = Gtk.Builder()
         builder.add_from_file('/usr/share/gYaH3C/mainwindow.glade')
@@ -62,9 +63,12 @@ class MainWindow(GObject.Object):
         #self.connect('logoff-succeed', self.on_logoffSucceed)
         #self.connect('eapfailure', self.on_EAPFailure)
         
-        # label
+        # Window Menu
+                
+
+        # Label
         self.label = builder.get_object('label')
-        
+
         # The Button
         self.logButton = builder.get_object('logButton')
         self.logButton.set_label('登录')
@@ -78,7 +82,6 @@ class MainWindow(GObject.Object):
             self.userListComboBox.append_text(userlist[i]['username'])
         if len(userlist) != 0:
             self.userListComboBox.set_active(0)
-        self.userListComboBox.append_text('添加新用户')
         
         #init the Indicator
         self.indicator = AppIndicator.Indicator.new(
@@ -109,6 +112,14 @@ class MainWindow(GObject.Object):
         self.menu.show()
         self.indicator.set_menu(self.menu)
 
+        if self.eapDaemon.IsLogin():
+           self.runningFaultNotify.show()
+           self.eapDaemon.Logoff()
+           exit(1)
+
+    def handler_menu_usermanage(self, widget):
+        pass
+
     def dbus_message_handler(self, message):
         print message
         self.label.set_text(message)
@@ -119,8 +130,18 @@ class MainWindow(GObject.Object):
         elif status_code == status.LOGOFF_SUCCEED:
             self.on_logoffSucceed()
         else:
-            self.on_EAPFailure()
-        
+            self.eapfailureNotify.show()
+            self.retryNum += 1
+            if self.hasLogin and self.retryNum <= 5:
+                self.on_relogin()
+                time.sleep(1)
+                self.eapDaemon.Login(self.um.get_all_users_info()[self.userListComboBox.get_active()]['username'])
+            else:
+                self.on_EAPFailure()
+
+    def on_relogin(self):
+        self.logButton.set_label('正在重连 #%d' % (self.retryNum + 1))
+        self.logButton.set_sensitive(False)
         
     def on_logButton_clicked(self, widget):
         if self.hasLogin:
@@ -148,17 +169,18 @@ class MainWindow(GObject.Object):
             self.win.hide()
 
     def handler_menu_exit(self, evt):
+        self.eapDaemon.Logoff()
         self.mainloop.quit()
 
     def on_userListComboBox_changed(self, widget):
         print widget.get_active()
         
     def on_loginSucceed(self):
+        self.retryNum = 0
         self.loginSuccedNotify.show()
         self.hasLogin = True
         self.logButton.set_label('下线')
         self.logButton.set_sensitive(True)
-        self.win.hide()
         self.togUiMenuItem.set_active(False)
 
     def on_logoffSucceed(self):
@@ -168,7 +190,6 @@ class MainWindow(GObject.Object):
         self.userListComboBox.set_sensitive(True)
 
     def on_EAPFailure(self):
-        self.eapfailureNotify.show()
         self.hasLogin = False
         self.logButton.set_label('登录')
         self.logButton.set_sensitive(True)

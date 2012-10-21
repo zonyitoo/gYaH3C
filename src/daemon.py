@@ -26,12 +26,15 @@ class EAPDaemon(dbus.service.Object):
         
         self.hasLogin = False
         self.yah3c = None
+        self.stopProcess = True
+        self.thread = None
         
         self.um = usermgr.UserMgr()
         
     @dbus.service.method('com.yah3c.EAPDaemon', in_signature='s')
     def Login(self, login_info):
         print 'Do Authorize ', login_info
+        self.stopProcess = False
         login_info = str(login_info)
         self.yah3c = eapauth.EAPAuth(self.um.get_user_info(login_info))
         self.thread = threading.Thread(target=self.serve_forever, args=(self.yah3c, ))
@@ -44,6 +47,19 @@ class EAPDaemon(dbus.service.Object):
         self.yah3c.send_logoff()
         if self.thread and not self.thread.isAlive():
             self.Status(status.EAP_FAILURE)
+        self.stopProcess = True
+
+    @dbus.service.method('com.yah3c.EAPDaemon', out_signature='b')
+    def IsLogin(self):
+        return self.hasLogin
+
+    @dbus.service.method('com.yah3c.EAPDaemon', out_signature='b')
+    def IsRunning(self):
+        return self.thread and self.thread.isAlive()
+
+    @dbus.service.method('com.yah3c.EAPDaemon')
+    def StopProcess(self):
+        self.stopProcess = True
 
     @dbus.service.signal('com.yah3c.EAPDaemon', signature='s')
     def Message(self, message):
@@ -56,30 +72,28 @@ class EAPDaemon(dbus.service.Object):
         pass
 
     def serve_forever(self, yah3c):
-        retry_num = 1
-        
-        while retry_num <= 5:
-            try:
-                yah3c.send_start()
-                while True:
-                    eap_packet = yah3c.client.recv(200)
-                    # strip the ethernet_header and handle
-                    self.EAP_handler(eap_packet[14:], yah3c)
-                    retry_num = 1
-            except socket.error, msg:
-                self.display_prompt("Connection error! retry %d" % retry_num)
-                time.sleep(retry_num * 2)
-                retry_num += 1
-            except KeyboardInterrupt:
-                self.display_prompt('Interrupted by user')
-                yah3c.send_logoff()
-                exit(1)
-        else:
-            #self.eapfailureSignal.emit()
+        yah3c.client.settimeout(20)
+        try:
+            yah3c.send_start()
+            while not self.stopProcess:
+                eap_packet = yah3c.client.recv(1024)
+                    # strip the ethernet_header and handlename
+                self.EAP_handler(eap_packet[14:], yah3c)
+        except socket.error, msg:
+            self.display_prompt("Connection error!")
+            #time.sleep(retry_num * 2)
+            #retry_num += 1
             self.Status(status.EAP_FAILURE)
-            self.display_prompt('Connection Closed')
-            exit(-1)
-            
+        except socket.timeout:
+            self.display_prompt("Connection timeout!")
+            self.status(status.EAP_FAILURE)
+        #except KeyboardInterrupt:
+        #    self.display_prompt('Interrupted by user')
+        #    yah3c.send_logoff()
+        #    exit(1)
+
+        self.hasLogin = False
+
     def display_prompt(self, string):
         #print string
         self.Message(string)
@@ -111,6 +125,7 @@ class EAPDaemon(dbus.service.Object):
         if code == EAP_SUCCESS:
             self.display_prompt('Got EAP Success')
             #self.loginSucceedSignal.emit()
+            self.hasLogin = True
             self.Status(status.LOGIN_SUCCEED)
             
         elif code == EAP_FAILURE:
@@ -119,18 +134,14 @@ class EAPDaemon(dbus.service.Object):
                 self.display_login_message(eap_packet[10:])
                 #self.logoffSucceedSignal.emit()
                 self.Status(status.LOGOFF_SUCCEED)
-                
-                exit(1)
             else:
                 self.display_prompt('Got EAP Failure')
 
                 self.display_login_message(eap_packet[10:])
-                if self.hasLogin:
-                    raise socket.error()
-                else:
-                    #self.eapfailureSignal.emit()
-                    self.Status(status.EAP_FAILURE)
-                    exit(1)
+                self.Status(status.EAP_FAILURE)
+                
+            self.hasLogin = False
+            exit(1)
         elif code == EAP_RESPONSE:
             self.display_prompt('Got Unknown EAP Response')
         elif code == EAP_REQUEST:
