@@ -2,12 +2,14 @@
 
 import dbus, dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-from gi.repository import GObject, Gdk
+from gi.repository import GObject
 import status, threading, socket, time
 import usermgr, eapauth
 from eappacket import *
+import os, sys
 
 GObject.threads_init()
+dbus.mainloop.glib.threads_init()
 
 class EAPDaemon(dbus.service.Object):
     name = 'com.yah3c.EAPDaemon'
@@ -161,7 +163,41 @@ if __name__ == "__main__":
     loop = GObject.MainLoop()
     service = EAPDaemon(loop)
 
-    print 'working'
-    Gdk.threads_enter()
+    print 'Deamon working'
+
+    # Do first fork
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)
+    except OSError, e:
+        sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerr))
+        sys.exit(1)
+
+    # Decouple from parent environment.
+    os.chdir("/")
+    os.umask(0)
+    os.setsid()
+
+    # Do second fork.
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)
+    except OSError, e:
+        sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerr))
+        sys.exit(1)
+
+    # Now I am a daemon!
+
+    # Redirect standard file descriptors.
+    si = open("/dev/null", 'r')
+    so = open("/tmp/gyah3c-daemon.log", 'a+')
+    se = open("/tmp/gyah3c-daemon.log", 'a+', 0)
+    os.dup2(si.fileno(), sys.stdin.fileno())
+    os.dup2(si.fileno(), sys.stdout.fileno())
+    os.dup2(si.fileno(), sys.stderr.fileno())
+
+    #Gdk.threads_enter()
     loop.run()
-    Gdk.threads_leave()
+    #Gdk.threads_leave()

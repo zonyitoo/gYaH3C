@@ -47,7 +47,7 @@ class MainWindow(GObject.Object):
         # Init the Notify
         Notify.init('gYaH3C')
         self.loginSuccedNotify = Notify.Notification.new('gYaH3C', "登录成功", "/usr/share/gYaH3C/icon/icon.png")
-        self.eapfailureNotify = Notify.Notification.new('gYaH3C', "连接失败", "/usr/share/gYaH3C/icon/icon.png")
+        self.eapfailureNotify = Notify.Notification.new('gYaH3C', "已下线", "/usr/share/gYaH3C/icon/icon.png")
         
         builder = Gtk.Builder()
         builder.add_from_file('/usr/share/gYaH3C/mainwindow.glade')
@@ -148,7 +148,7 @@ class MainWindow(GObject.Object):
             self.win.hide()
 
     def handler_menu_exit(self, evt):
-        Gtk.main_quit()
+        self.mainloop.quit()
 
     def on_userListComboBox_changed(self, widget):
         print widget.get_active()
@@ -158,6 +158,8 @@ class MainWindow(GObject.Object):
         self.hasLogin = True
         self.logButton.set_label('下线')
         self.logButton.set_sensitive(True)
+        self.win.hide()
+        self.togUiMenuItem.set_active(False)
 
     def on_logoffSucceed(self):
         self.hasLogin = False
