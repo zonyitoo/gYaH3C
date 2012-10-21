@@ -28,11 +28,11 @@ sudo service gyah3c-daemon start
 
 * 从源码安装
 
-因为使用了DBus的SystemBus，所以要先向系统注册一下下
+因为使用了DBus的SystemBus，所以要向系统注册一下下
 ```bash
 sudo cp com.yah3c.EAPDaemon.conf /etc/dbus-1/system.d/
 sudo cp com.yah3c.EAPDaemon.service /usr/share/dbus-1/system-services/
 ```
-然后执行`install.sh`
+执行`install.sh`可自动完成
 ## TODO
 * 用户管理模块
