@@ -4,5 +4,6 @@ BIN_PATH='/usr/bin'
 
 rm -f $BIN_PATH/gyah3c
 rm -f $BIN_PATH/gyah3c-daemon
+rm -f $BIN_PATH/gyah3c-adduser
 
 update-rc.d -f gyah3c-daemon remove

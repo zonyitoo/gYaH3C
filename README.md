@@ -34,5 +34,16 @@ sudo cp com.yah3c.EAPDaemon.conf /etc/dbus-1/system.d/
 sudo cp com.yah3c.EAPDaemon.service /usr/share/dbus-1/system-services/
 ```
 执行`install.sh`可自动完成
+
+## 使用
+如果出现有关dbus的问题，那应该是daemon没有启动
+```bash
+sudo service gyah3c-daemon restart
+```
+
+添加用户
+```bash
+sudo gyah3c-adduser
+```
 ## TODO
 * 用户管理模块

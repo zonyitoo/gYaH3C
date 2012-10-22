@@ -23,4 +23,5 @@ cp src/gyah3c-daemon $INIT_PATH
 
 ln -s /usr/share/gYaH3C/daemon.py /usr/bin/gyah3c-daemon
 ln -s /usr/share/gYaH3C/main.py /usr/bin/gyah3c
-chmod +x /usr/share/gYaH3C/daemon.py /usr/share/gYaH3C/main.py
+ln -s /usr/share/gYaH3C/gyah3c-adduser.py /usr/bin/gyah3c-adduser
+chmod +x $APP_PATH/daemon.py $APP_PATH/main.py $APP_PATH/gyah3c-adduser.py
