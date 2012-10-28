@@ -1,4 +1,4 @@
 [D-BUS Service]
 Name=com.yah3c.EAPDaemon
-Exec=/usr/share/gYaH3C/daemon.py
+Exec=/usr/bin/gyah3c-daemon
 User=root

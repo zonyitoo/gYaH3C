@@ -35,7 +35,7 @@ class MainWindow(GObject.Object):
         self.bus.add_signal_receiver(self.dbus_message_handler, dbus_interface=dbusinterface, signal_name='Message')
         self.bus.add_signal_receiver(self.dbus_status_handler, dbus_interface=dbusinterface, signal_name="Status")
         
-        bus_name = dbus.service.BusName(dbusname, bus=self.bus)
+        #bus_name = dbus.service.BusName(dbusname, bus=self.bus)
         #dbus.service.Object.__init__(self, bus_name, dbuspath)
         
         # DBus Method
@@ -152,6 +152,7 @@ class MainWindow(GObject.Object):
             self.logButton.set_label('正在登录')
             self.userListComboBox.set_sensitive(False)
             self.eapDaemon.Login(self.um.get_all_users_info()[self.userListComboBox.get_active()]['username'])
+        
         self.logButton.set_sensitive(False)
 
     def on_mainWindow_delete_event(self, widget, evt):

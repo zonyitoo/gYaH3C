@@ -5,7 +5,7 @@ SRC_PATH='/usr/share/gYaH3C'
 
 chmod +x $SRC_PATH/main.py $SRC_PATH/daemon.py
 ln -s $SRC_PATH/main.py $BIN_PATH/gyah3c
-ln -s $SRC_PATH/daemon.py $BIN_PATH/gyah3c-daemon
+ln -s $SRC_PATH/gyah3c-daemon.py $BIN_PATH/gyah3c-daemon
 ln -s $SRC_PATH/gyah3c-adduser.py $BIN_PATH/gyah3c-adduser
 
 update-rc.d gyah3c-daemon defaults 99
