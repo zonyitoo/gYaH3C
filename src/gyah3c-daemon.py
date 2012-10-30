@@ -45,7 +45,8 @@ class EAPDaemon(dbus.service.Object):
     @dbus.service.method('com.yah3c.EAPDaemon')
     def Logoff(self):
         print 'Do Logoff'
-        self.yah3c.send_logoff()
+        if self.yah3c:
+            self.yah3c.send_logoff()
         if self.thread and not self.thread.isAlive():
             self.Status(status.EAP_FAILURE)
         self.stopProcess = True
@@ -83,7 +84,7 @@ class EAPDaemon(dbus.service.Object):
                     # strip the ethernet_header and handlename
                 self.EAP_handler(eap_packet[14:], yah3c)
         except socket.error, msg:
-            self.display_prompt("Connection error!")
+            self.display_prompt("Connection error! %s" % msg)
             #time.sleep(retry_num * 2)
             #retry_num += 1
             self.Status(status.EAP_FAILURE)
