@@ -8,7 +8,6 @@
 
 ## 依赖
 * python2.7
-* python-netifaces
 * python-appindicator
 * python-dbus
 
