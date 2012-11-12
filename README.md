@@ -8,7 +8,6 @@
 
 ## 依赖
 * python2.7
-* python-appindicator
 * python-dbus
 
 ## 安装
