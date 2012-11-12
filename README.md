@@ -1,5 +1,5 @@
 # gYaH3C
-一个带GUI界面的YaH3C，带有DBus支持和AppIndicator
+一个带GUI界面的YaH3C，带有DBus支持
 
 ## 测试环境
 * Ubuntu12.10 x64

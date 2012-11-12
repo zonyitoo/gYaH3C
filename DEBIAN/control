@@ -4,5 +4,5 @@ Section: net
 Priority: optional
 Maintainer: zonyitoo <zonyitoo@gmail.com>
 Architecture: all
-Depends: python2.7, python-appindicator
+Depends: python2.7
 Description: YaH3C GUI Version
