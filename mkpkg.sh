@@ -28,4 +28,4 @@ cp src/gYaH3C.desktop pkg/$APP_PATH
 cp src/gyah3c-daemon pkg/$INIT_PATH
 cp -r DEBIAN pkg/
 
-dpkg -b ./pkg gyah3c_0.2_all.deb
+dpkg -b ./pkg gyah3c_0.3_all.deb

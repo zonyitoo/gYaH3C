@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 
 from gi.repository import Gtk, Gdk
-try: 
-    from gi.repository import AppIndicator3 as AppIndicator  
-except:  
-    from gi.repository import AppIndicator
+#try: 
+#    from gi.repository import AppIndicator3 as AppIndicator  
+#except:  
+#    from gi.repository import AppIndicator
 from gi.repository import Notify
 from gi.repository import GObject
 import eapauth, usermgr
@@ -68,6 +68,7 @@ class MainWindow(GObject.Object):
 
         # Label
         self.label = builder.get_object('label')
+        self.label.set_text("Ready.")
 
         # The Button
         self.logButton = builder.get_object('logButton')
@@ -84,38 +85,45 @@ class MainWindow(GObject.Object):
             self.userListComboBox.set_active(0)
         
         #init the Indicator
-        self.indicator = AppIndicator.Indicator.new(
-                "indicator-yah3c", 
-                "/usr/share/gYaH3C/icon/systray.png",
-                AppIndicator.IndicatorCategory.COMMUNICATIONS)
+        #self.indicator = AppIndicator.Indicator.new(
+        #        "indicator-yah3c", 
+        #        "/usr/share/gYaH3C/icon/systray.png",
+        #        AppIndicator.IndicatorCategory.COMMUNICATIONS)
         # Show the indicator
-        self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
+        #self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
 
-        self.menu = Gtk.Menu()
+        self.statusIcon = Gtk.StatusIcon()
+        self.statusIcon.set_from_file("/usr/share/gYaH3C/icon/icon.png")
+        self.statusIcon.connect("activate", self.on_status_icon_clicked)
+
+        #self.menu = Gtk.Menu()
 
         # Show/Hide the UI
-        self.togUiMenuItem = Gtk.CheckMenuItem()
-        self.togUiMenuItem.set_label("显示界面")
-        self.togUiMenuItem.set_active(True)
-        self.togUiMenuItem.connect("activate", self.handler_menu_togui)
-        self.togUiMenuItem.show()
-        self.menu.append(self.togUiMenuItem)
+        #self.togUiMenuItem = Gtk.CheckMenuItem()
+        #self.togUiMenuItem.set_label("显示界面")
+        #self.togUiMenuItem.set_active(True)
+        #self.togUiMenuItem.connect("activate", self.handler_menu_togui)
+        #self.togUiMenuItem.show()
+        #self.menu.append(self.togUiMenuItem)
         
         # Exit the App
-        self.exitMenuItem = Gtk.MenuItem()
-        self.exitMenuItem.set_label("退出")
-        self.exitMenuItem.connect("activate", self.handler_menu_exit)
-        self.exitMenuItem.show()
-        self.menu.append(self.exitMenuItem)
+        #self.exitMenuItem = Gtk.MenuItem()
+        #self.exitMenuItem.set_label("退出")
+        #self.exitMenuItem.connect("activate", self.handler_menu_exit)
+        #self.exitMenuItem.show()
+        #self.menu.append(self.exitMenuItem)
 
         # Show the Menu
-        self.menu.show()
-        self.indicator.set_menu(self.menu)
+        #self.menu.show()
+        #self.indicator.set_menu(self.menu)
 
         if self.eapDaemon.IsLogin():
            self.runningFaultNotify.show()
            self.eapDaemon.Logoff()
            exit(1)
+
+    def on_status_icon_clicked(self, widget):
+        self.win.show()
 
     def handler_menu_usermanage(self, widget):
         pass
@@ -158,23 +166,24 @@ class MainWindow(GObject.Object):
     def on_mainWindow_delete_event(self, widget, evt):
         if self.hasLogin:
             self.win.hide()
-            self.togUiMenuItem.set_active(False)
+            #self.togUiMenuItem.set_active(False)
             return True
         else:
             self.mainloop.quit()
 
-    def handler_menu_togui(self, widget):
-        if widget.get_active():
-            self.win.show()
-        else:
-            self.win.hide()
+    #def handler_menu_togui(self, widget):
+    #    if widget.get_active():
+    #        self.win.show()
+    #    else:
+    #        self.win.hide()
 
     def handler_menu_exit(self, evt):
         self.eapDaemon.Logoff()
         self.mainloop.quit()
 
     def on_userListComboBox_changed(self, widget):
-        print widget.get_active()
+        #print widget.get_active()
+        pass
         
     def on_loginSucceed(self):
         self.retryNum = 0
@@ -182,7 +191,8 @@ class MainWindow(GObject.Object):
         self.hasLogin = True
         self.logButton.set_label('下线')
         self.logButton.set_sensitive(True)
-        self.togUiMenuItem.set_active(False)
+        self.win.hide()
+        #self.togUiMenuItem.set_active(False)
 
     def on_logoffSucceed(self):
         self.hasLogin = False
